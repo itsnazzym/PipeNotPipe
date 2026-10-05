@@ -20,6 +20,11 @@ if ($InstallToolchain) {
 Initialize-BuildEnvironment
 Push-Location $script:WorkspaceRoot
 try {
+    $taskRootRemotes = & git remote
+    if ($LASTEXITCODE -ne 0) { throw 'Impossible de lire les remotes du projet.' }
+    if ($taskRootRemotes -notcontains 'upstream') {
+        Invoke-CheckedGit -GitArguments @('remote', 'add', 'upstream', 'https://github.com/InfinityLoop1308/PipePipe.git')
+    }
     Invoke-CheckedGit -GitArguments @('submodule', 'sync', '--', 'PipePipeClient', 'PipePipeExtractor')
     foreach ($taskModule in @('PipePipeClient', 'PipePipeExtractor')) {
         $taskGitMarker = Join-Path $script:WorkspaceRoot "$taskModule/.git"
